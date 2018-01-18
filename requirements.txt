@@ -1,0 +1,4 @@
+tensorflow==1.4.1
+numpy==1.14.0
+nltk==3.2.5
+cloudpickle>=0.2.2
