@@ -14,7 +14,7 @@ PATH_TRAIN_PICKLE = './dataset_train_encoded.pyk'
 PATH_TEST_PICKLE  = './dataset_test_encoded.pyk'
 PREDICTIONS_FILE  = 'output_predictions.csv'
 
-# Model hyperparams. See Riedel1 et al. for details
+# Model hyperparams. See Riedel et al. for details
 INPUT_LAYER_SIZE = 5000
 HIDDEN_LAYER_SIZE = 100
 AMOUNT_CLASSES = 4
