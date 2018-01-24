@@ -16,7 +16,7 @@ PATH_TRAIN_PICKLE = './dataset_train_encoded.pyk'
 PATH_TEST_PICKLE  = './dataset_test_encoded.pyk'
 PREDICTIONS_FILE  = 'output_predictions.csv'
 
-# Model hyperparams. See Riedel1 et al. for details
+# Model hyperparams. See Riedel et al. for details
 INPUT_LAYER_SIZE = 5000
 HIDDEN_LAYER_SIZE = 100
 AMOUNT_CLASSES = 4
@@ -115,6 +115,7 @@ with tf.Session() as session:
         logging.info('Done. Cost function: {:4.4}'.format(epoch_loss))
 
     print('Training finished. It took {} s.'.format(time.time() - start_time))
+
     # persisting the model
     tf.train.Saver().save(session, os.path.join(os.getcwd(), 'model/model'))
 
