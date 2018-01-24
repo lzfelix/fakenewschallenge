@@ -1,12 +1,15 @@
 # coding:utf-8
 
+import os
+import time
 import logging
-logging.basicConfig(format=logging.BASIC_FORMAT, level=logging.INFO)
 
 import numpy as np
 import tensorflow as tf
 import cloudpickle
 import random
+
+logging.basicConfig(format=logging.BASIC_FORMAT, level=logging.INFO)
 
 # File paths
 PATH_TRAIN_PICKLE = './dataset_train_encoded.pyk'
@@ -24,7 +27,7 @@ LEARNING_RATE = 1e-2
 GRAD_CLIP_RATIO = 5
 
 TRAIN_BATCH_SIZE = 500
-EPOCHS = 4
+EPOCHS = 30                 # < similar results are achieved w/ lesser epochs
 
 logging.info('Loading train set')
 with open(PATH_TRAIN_PICKLE, 'rb') as file:
@@ -44,43 +47,44 @@ m = len(X_train[0])
 def build_graph():
     # input paths
     x_pl = tf.placeholder(tf.float32, [None, m], 'x_layer')
-    y_pl = tf.placeholder(tf.int32, [None], 'y_placeholder')
-    dropout_proba_pl = tf.placeholder(tf.float32)
+    y_pl = tf.placeholder(tf.int64, [None], 'y_placeholder')
+    training_pl = tf.placeholder(tf.bool, name='train_mode')
 
     # Magic trick to get the size of the batch without hard coding
     batch_size = tf.shape(x_pl)[0]
 
     # NN architecture
-    hidden_layer = tf.nn.dropout(tf.nn.relu(tf.contrib.layers.linear(x_pl, HIDDEN_LAYER_SIZE)), keep_prob=DROPOUT_KEEP_P)
-    linear_layer = tf.nn.dropout(tf.nn.relu(tf.contrib.layers.linear(hidden_layer, AMOUNT_CLASSES)), keep_prob=DROPOUT_KEEP_P)
+    hidden_layer = tf.layers.dropout(tf.nn.relu(tf.contrib.layers.linear(x_pl, HIDDEN_LAYER_SIZE)), rate=DROPOUT_KEEP_P, training=training_pl)
+    linear_layer = tf.layers.dropout(tf.contrib.layers.linear(hidden_layer, AMOUNT_CLASSES), rate=DROPOUT_KEEP_P, training=training_pl)
+
     logits = tf.reshape(linear_layer, [batch_size, AMOUNT_CLASSES])
 
     # adding regularization
     ws = tf.trainable_variables()
-    l2_reg = tf.add_n([tf.nn.l2_loss(w) for w in ws if 'bias' not in w.name]) * LEARNING_RATE
+    l2_reg = tf.add_n([tf.nn.l2_loss(w) for w in ws if 'bias' not in w.name]) * L2_LAMBDA 
 
     # computing cross-entropy loss
     J = tf.reduce_sum(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y_pl) + l2_reg)
 
     # adding prediction paths. Shortcut for prediction
-    predict = tf.argmax(logits, axis=1)
+    predict = tf.argmax(logits, axis=1, name='predict')
 
-
-    return x_pl, y_pl, dropout_proba_pl, ws, J, predict
+    return (x_pl, y_pl, training_pl, ws, J, predict)
 
 
 # getting paths to the compute graph
-x_pl, y_pl, dropout_proba_pl, W, loss_function, predict = build_graph()
+x_pl, y_pl, training_pl, W, loss_function, predict = build_graph()
 
 optimizer = tf.train.AdamOptimizer(LEARNING_RATE)
 
 # clipping the gradients, as described in the paper
-grad = tf.gradients(loss_function, W)
-clipped_grad, _ = tf.clip_by_global_norm(grad, clip_norm=GRAD_CLIP_RATIO)
+grads = tf.gradients(loss_function, W)
+clipped_grads, _ = tf.clip_by_global_norm(grads, clip_norm=GRAD_CLIP_RATIO)
 
 # optimizing with clipped grads
-optimization_step = optimizer.apply_gradients(zip(clipped_grad, W))
+optimization_step = optimizer.apply_gradients(zip(clipped_grads, W))
 
+start_time = time.time()
 with tf.Session() as session:
     session.run(tf.global_variables_initializer())
 
@@ -103,11 +107,14 @@ with tf.Session() as session:
             _, Jt = session.run([optimization_step, loss_function], feed_dict={
                 x_pl: X_batch,
                 y_pl: y_batch,
-                dropout_proba_pl: DROPOUT_KEEP_P,
+                training_pl: True
             })
 
             epoch_loss += Jt
 
         logging.info('Done. Cost function: {:4.4}'.format(epoch_loss))
 
+    print('Training finished. It took {} s.'.format(time.time() - start_time))
+    # persisting the model
+    tf.train.Saver().save(session, os.path.join(os.getcwd(), 'model/model'))
 
