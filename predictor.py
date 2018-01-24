@@ -8,11 +8,11 @@ import tensorflow as tf
 MODEL_PATH = './model'
 MODEL_META = os.path.join(MODEL_PATH, 'model.meta')
 
-PATH_TRAIN_PICKLE = './dataset_train_encoded.pyk'
-PATH_TEST_PICKLE  = './dataset_test_encoded.pyk'
+PATH_TRAIN_PICKLE = './dataset/dataset_train_encoded.pyk'
+PATH_TEST_PICKLE  = './dataset/dataset_test_encoded.pyk'
 
-PREDICTIONS_FILE  = 'predicted_test.csv'
-GOLD_LABEL_FILE = 'gold_labels.csv'
+PREDICTIONS_FILE  = './dataset/predicted_test.csv'
+GOLD_LABEL_FILE   = './dataset/gold_labels.csv'
 
 
 with open(PATH_TEST_PICKLE, 'rb') as file:

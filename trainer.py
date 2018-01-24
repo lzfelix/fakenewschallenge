@@ -12,9 +12,8 @@ import random
 logging.basicConfig(format=logging.BASIC_FORMAT, level=logging.INFO)
 
 # File paths
-PATH_TRAIN_PICKLE = './dataset_train_encoded.pyk'
-PATH_TEST_PICKLE  = './dataset_test_encoded.pyk'
-PREDICTIONS_FILE  = 'output_predictions.csv'
+PATH_TRAIN_PICKLE = './dataset/dataset_train_encoded.pyk'
+PATH_TEST_PICKLE  = './dataset/dataset_test_encoded.pyk'
 
 # Model hyperparams. See Riedel et al. for details
 INPUT_LAYER_SIZE = 5000

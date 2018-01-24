@@ -12,8 +12,8 @@ Notice that this code was developed for `python>=3.5`. `cloudpickle` is used ins
 
 First you need to extract the features from the train and test data. This can be done using the code
 on `preprocessing.ipynb`. After running it, two pickle files will be generated, namely:
-`dataset_test_encoded.pyk` and `dataset_train_encoded.pyk`. This allows running the preprocessing
-phase only once, saving a considerable amount of time when iterativelly tunning the model.
+`dataset_test_encoded.pyk` and `dataset_train_encoded.pyk` on the `dataset/`. This allows running the
+preprocessing phase only once, saving a considerable amount of time when iterativelly tunning the model.
 
 Following, the model can be trained with `python trainer.py`. The model use the same parameters from the
 original implementation, except for the amount of epochs, which was reduced from 90 to 30, while keeping
@@ -21,9 +21,9 @@ mostly the same results while decreasing the amount of iterations (and time) by 
 
 To predict on the test set, use `python predictor.py`. which will load the trained model, the
 test samples and generate a file named `predicted_test.csv`. Finally it's possible to check
-the performance of the model with `python scorer.py gold_labels.csv predicted_tests.csv`. This script
-is simply a copy from the Fake News Challenge repository and provides the model score, accuracy and
-confusion matrix.
+the performance of the model with `python scorer.py dataset/gold_labels.csv dataset/predicted_tests.csv`.
+This script is simply a copy from the Fake News Challenge repository and provides the model score, accuracy
+and confusion matrix.
 
 ## Reported results
 

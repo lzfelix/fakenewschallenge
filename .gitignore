@@ -6,6 +6,7 @@
 **/*.DS_Store
 
 *.pyc
+*.pyk
 
 predicted_test.csv
 
